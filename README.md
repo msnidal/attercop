@@ -1,14 +1,21 @@
 # attercop
 
-Command line LLM query generation tool
+Your friendly, micro command line LLM query generation tool
 
 ## Overview
 
-attercop is a command line tool for generating LLM queries. It uses the OpenAI API to map natural language queries to a command or sequence of commands, emphasizing usage of standard GNU tools.
+attercop is a micro Python tool that generates command prompts via an LLM provider. It uses the OpenAI API to map natural language queries to a command or sequence of commands, emphasizing usage of standard GNU tools. The exapmle I use in the GPT query is:
+
+```bash
+$ attercop "List all the files in this directory, filtering out the ones that are not directories, and then sort them by size, largest first."
+(1/1) ls -l | grep ^d | sort -k5 -n -r
+```
+
+It then lets you cycle through multiple options if the prompt is somewhat ambiguous, and either confirm or reject the command.
 
 ## Installation
 
-The package is available on PyPI, so you can install it with pip:
+The package is now available on PyPI, so you can install it with pip:
 
 ```bash
 pip install attercop
@@ -25,7 +32,8 @@ I would definitely prefer this tool to be agnostic to the LLM provider. If you w
 Once you've installed, you can just run the `attercop` command:
 
 ```bash
-attercop "I want to know if the user is logged in"
+$ attercop "Find all files in this and subdirectories ending with the extension .txt"
+(1/1): find . -name "*.txt"
 ```
 
 It will hit the OpenAI API and come back with one of several prompts, depending on the max_prompts parameter. You can cycle through these with tab, select one with enter or 'y', or hit 'q' or Ctrl-C to quit.

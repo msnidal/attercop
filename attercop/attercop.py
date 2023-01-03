@@ -91,15 +91,11 @@ def create_prompt():
             ch = sys.stdin.read(1)
 
             match ch:
-                case "y":
+                case "y" | "\r":
                     accept_query = True
                 case "\t":
                     selected_query = (selected_query + 1) % len(output_set)
-                case "q":
-                    break
-                case "\x03":  # SIGKILL & SIGTERM - not a great way to do this lmao
-                    break
-                case "\x04":
+                case "q" | "\x03" | "\x04":  # SIGKILL & SIGTERM - not ideal tty handling but hey it works
                     break
 
             if not accept_query:
