@@ -1,5 +1,7 @@
 # attercop
 
+[![PyPI version](https://badge.fury.io/py/attercop.svg)](https://badge.fury.io/py/attercop)
+
 Your friendly, micro command line LLM query generation tool
 
 ## Overview
@@ -11,7 +13,7 @@ $ attercop "List all the files in this directory, filtering out the ones that ar
 (1/1) ls -l | grep ^d | sort -k5 -n -r
 ```
 
-It then lets you cycle through multiple options if the prompt is somewhat ambiguous, and either confirm or reject the command.
+It then lets you cycle through multiple options if the prompt is somewhat ambiguous, and either confirm (and run!) or reject the command.
 
 ## Installation
 
@@ -36,4 +38,4 @@ $ attercop "Find all files in this and subdirectories ending with the extension 
 (1/1): find . -name "*.txt"
 ```
 
-It will hit the OpenAI API and come back with one of several prompts, depending on the max_prompts parameter. You can cycle through these with tab, select one with enter or 'y', or hit 'q' or Ctrl-C to quit.
+It will hit the OpenAI API and come back with one of several prompts, depending on the max_prompts parameter. You can cycle through these with tab, select one for execution with enter or 'y', or hit 'q' or Ctrl-C to quit.
