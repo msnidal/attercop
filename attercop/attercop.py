@@ -10,15 +10,15 @@ import openai
 NUM_PROMPTS = 3
 TEMPERATURE = 0
 MAX_TOKENS = 100
-MODEL = "text-davinci-002"
+MODEL = "text-davinci-003"
 BASE_PROMPT = """Convert a prompt into a working programmatic bash command or chain of commands, making use of standard GNU tools and common bash idioms.
 
-Question: 
+Prompt: 
 List all the files in this directory, filtering out the ones that are not directories, and then sort them by size, largest first.
-Answer:
+Command:
 ls -l | grep ^d | sort -k5 -n -r
 
-Question: 
+Prompt: 
 """
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -52,7 +52,7 @@ parser.add_argument(
     "--model",
     type=str,
     default=MODEL,
-    help="The GPT model to use. Defaults to text-davinci-002.",
+    help="The GPT model to use. Defaults to text-davinci-003.",
 )
 
 args = parser.parse_args()
