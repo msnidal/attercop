@@ -1,6 +1,7 @@
 # attercop
 
-[![PyPI](https://img.shields.io/pypi/v/attercop)](https://pypi.org/project/attercop/#description) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/attercop)
+[![PyPI](https://img.shields.io/pypi/v/attercop?color=gr)](https://pypi.org/project/attercop/#description)
+![PyPI - Python Version](https://img.shields.io/badge/dynamic/json?query=info.requires_python&label=python&url=https%3A%2F%2Fpypi.org%2Fpypi%2Fattercop%2Fjson)
 
 Your friendly, micro command line LLM query generation tool!
 
