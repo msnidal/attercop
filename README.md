@@ -1,6 +1,6 @@
 # attercop
 
-[![PyPI version](https://badge.fury.io/py/attercop.svg)](https://badge.fury.io/py/attercop)
+[![PyPI version](https://badge.fury.io/py/attercop.svg)](https://badge.fury.io/py/attercop) ![Python version](https://img.shields.io/pypi/pyversions/attercop)
 
 Your friendly, micro command line LLM query generation tool
 
@@ -13,21 +13,17 @@ $ attercop "List all the files in this directory, filtering out the ones that ar
 (1/1) ls -l | grep ^d | sort -k5 -n -r
 ```
 
-It then lets you cycle through multiple options if the prompt is somewhat ambiguous, and either confirm (and run!) or reject the command.
+It then lets you cycle through multiple options with `Tab` if the prompt is somewhat ambiguous, and either confirm and run with `y` or `Enter`, copy to clipboard with `c`, or outright reject the command with `q`, `Ctrl+C` or `Ctrl+D`.
 
 ## Installation
 
-The package is now available on PyPI, so you can install it with pip:
+The package is now available on PyPI, so as long as you're running Python >=3.10, you can install it with pip:
 
 ```bash
 pip install attercop
 ```
 
-You will need to set the environment variable `OPENAI_API_KEY` to your personal OpenAI API key. You can get one [here](https://beta.openai.com/).
-
-### What about other LLM providers?
-
-I would definitely prefer this tool to be agnostic to the LLM provider. If you want to add support for another provider, please open an issue or a pull request.
+You will need to set the environment variable `OPENAI_API_KEY` to your personal OpenAI API key. [You can get one here](https://beta.openai.com/) - as of January 2023, as a new member you will get plenty of free credits to play with. [For more on pricing you can see their page here.](https://openai.com/api/pricing/)
 
 ## Usage
 
@@ -39,3 +35,36 @@ $ attercop "Find all files in this and subdirectories ending with the extension 
 ```
 
 It will hit the OpenAI API and come back with one of several prompts, depending on the max_prompts parameter. You can cycle through these with tab, select one for execution with enter or 'y', or hit 'q' or Ctrl-C to quit.
+
+| Command           | Key                         |
+|-------------------|-----------------------------|
+| Cycle Command     | `Tab`                       |
+| Execute           | `y` \| `Enter`              |
+| Copy to Clipboard | `c`                         |
+| Reject            | `q` \| `Ctrl+C` \| `Ctrl+D` |
+
+For other options, run `attercop --help`:
+
+```bash
+$ attercop --help
+usage: attercop [-h] [--num-prompts NUM_PROMPTS] [--temperature TEMPERATURE] [--max-tokens MAX_TOKENS] [--model MODEL] prompt
+
+Generate a command or chain of commands to perform a task.
+
+positional arguments:
+  prompt                The English-language prompt to use for the GPT completion.
+
+options:
+  -h, --help            show this help message and exit
+  --num-prompts NUM_PROMPTS
+                        The maximum number of alternative prompts to generate. Defaults to 3.
+  --temperature TEMPERATURE
+                        Higher values will result in more diverse completions, but lower values will result in more sensible completions. Defaults to 0.
+  --max-tokens MAX_TOKENS
+                        The maximum number of tokens to generate per prompt. Defaults to 100.
+  --model MODEL         The GPT model to use. Defaults to text-davinci-003.
+```
+
+## What about other LLM providers?
+
+I would definitely prefer this tool to be agnostic to the LLM provider. If you want to add support for another provider, please open an issue or a pull request! Also feel free to open an issue if you have any other suggestions or feedback.

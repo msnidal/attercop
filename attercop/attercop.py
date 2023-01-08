@@ -6,7 +6,9 @@ import termios
 import subprocess
 
 import openai
+import pyperclip
 
+ACCEPT, COPY = "y", "c"
 NUM_PROMPTS = 3
 TEMPERATURE = 0
 MAX_TOKENS = 100
@@ -80,11 +82,11 @@ def create_prompt():
     outputs = [choice.text for choice in response.choices]
     output_set = set(outputs)
 
-    accept_query = False
+    action = None
     selected_query = 0
 
     try:
-        while not accept_query:
+        while not action:
             output = outputs[selected_query]
 
             print(f"({selected_query + 1}/{len(output_set)}): {output}", end="\r")
@@ -92,20 +94,25 @@ def create_prompt():
 
             match ch:
                 case "y" | "\r":
-                    accept_query = True
+                    action = ACCEPT
+                case "c":
+                    action = COPY
                 case "\t":
                     selected_query = (selected_query + 1) % len(output_set)
                 case "q" | "\x03" | "\x04":  # SIGKILL & SIGTERM - not ideal tty handling but hey it works
                     break
 
-            if not accept_query:
+            if not action:
                 sys.stdout.write("\r" + " " * 100 + "\r")
     finally:
         termios.tcsetattr(stdin_descriptor, termios.TCSADRAIN, stdin_attributes)
 
-    if accept_query:
+    if action == ACCEPT:
         print(f"Executing: {output}")
         subprocess.run(output, shell=True)
+    elif action == COPY:
+        print(f"Copying to clipboard: {output}")
+        pyperclip.copy(output)
 
 if __name__ == "__main__":
     create_prompt()
