@@ -1,8 +1,8 @@
 # attercop
 
-[![PyPI version](https://badge.fury.io/py/attercop.svg)](https://badge.fury.io/py/attercop) ![Python version](https://img.shields.io/pypi/pyversions/attercop)
+[![PyPI](https://img.shields.io/pypi/v/attercop)](https://pypi.org/project/attercop/#description) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/attercop)
 
-Your friendly, micro command line LLM query generation tool
+Your friendly, micro command line LLM query generation tool!
 
 ## Overview
 
