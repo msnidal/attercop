@@ -6,24 +6,26 @@ import termios
 import subprocess
 
 import openai
+import pyperclip
 
+ACCEPT, COPY = "y", "c"
 NUM_PROMPTS = 3
 TEMPERATURE = 0
 MAX_TOKENS = 100
-MODEL = "text-davinci-002"
+MODEL = "text-davinci-003"
 BASE_PROMPT = """Convert a prompt into a working programmatic bash command or chain of commands, making use of standard GNU tools and common bash idioms.
 
-Question: 
+Prompt: 
 List all the files in this directory, filtering out the ones that are not directories, and then sort them by size, largest first.
-Answer:
+Command:
 ls -l | grep ^d | sort -k5 -n -r
 
-Question: 
+Prompt: 
 """
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 parser = argparse.ArgumentParser(
-    description="Generate a command or chain of commands to perform a task."
+    description="Generate a command or chain of commands to perform a task. Once generated, you can cycle through commands with tab, accept a command with enter or y, copy to the clipboard with c, or quit with q."
 )
 parser.add_argument(
     "prompt",
@@ -52,7 +54,7 @@ parser.add_argument(
     "--model",
     type=str,
     default=MODEL,
-    help="The GPT model to use. Defaults to text-davinci-002.",
+    help="The GPT model to use. Defaults to text-davinci-003.",
 )
 
 args = parser.parse_args()
@@ -80,11 +82,11 @@ def create_prompt():
     outputs = [choice.text for choice in response.choices]
     output_set = set(outputs)
 
-    accept_query = False
+    action = None
     selected_query = 0
 
     try:
-        while not accept_query:
+        while not action:
             output = outputs[selected_query]
 
             print(f"({selected_query + 1}/{len(output_set)}): {output}", end="\r")
@@ -92,20 +94,25 @@ def create_prompt():
 
             match ch:
                 case "y" | "\r":
-                    accept_query = True
+                    action = ACCEPT
+                case "c":
+                    action = COPY
                 case "\t":
                     selected_query = (selected_query + 1) % len(output_set)
                 case "q" | "\x03" | "\x04":  # SIGKILL & SIGTERM - not ideal tty handling but hey it works
                     break
 
-            if not accept_query:
+            if not action:
                 sys.stdout.write("\r" + " " * 100 + "\r")
     finally:
         termios.tcsetattr(stdin_descriptor, termios.TCSADRAIN, stdin_attributes)
 
-    if accept_query:
+    if action == ACCEPT:
         print(f"Executing: {output}")
         subprocess.run(output, shell=True)
+    elif action == COPY:
+        print(f"Copying to clipboard: {output}")
+        pyperclip.copy(output)
 
 if __name__ == "__main__":
     create_prompt()

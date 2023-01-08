@@ -4,16 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "attercop"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     {name = "Mark Snidal", email = "mark.snidal@gmail.com"},
 ]
 readme = "README.md"
 license = {file = "LICENSE"}
+requires-python = ">3.10"
 dependencies = [
-    "black==22.10.0",
-    "openai==0.23.1",
-    "importlib-metadata; python_version>='3.10'",
+    "openai~=0.26.0",
+    "pyperclip~=1.8.2"
+]
+
+[project.optional-dependencies]
+lint = [
+    "black~=22.12.0"
 ]
 
 [project.scripts]
