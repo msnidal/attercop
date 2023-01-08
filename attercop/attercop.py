@@ -25,7 +25,7 @@ Prompt:
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 parser = argparse.ArgumentParser(
-    description="Generate a command or chain of commands to perform a task."
+    description="Generate a command or chain of commands to perform a task. Once generated, you can cycle through commandss with tab, accept a command with enter or y, copy to the clipboard with c, or quit with q."
 )
 parser.add_argument(
     "prompt",

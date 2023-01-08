@@ -49,7 +49,7 @@ For other options, run `attercop --help`:
 $ attercop --help
 usage: attercop [-h] [--num-prompts NUM_PROMPTS] [--temperature TEMPERATURE] [--max-tokens MAX_TOKENS] [--model MODEL] prompt
 
-Generate a command or chain of commands to perform a task.
+Generate a command or chain of commands to perform a task. Once generated, you can cycle through commandss with tab, accept a command with enter or y, copy to the clipboard with c, or quit with q.
 
 positional arguments:
   prompt                The English-language prompt to use for the GPT completion.
