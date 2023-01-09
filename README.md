@@ -44,26 +44,33 @@ It will hit the OpenAI API and come back with one of several prompts, depending 
 | Copy to Clipboard | `c`                         |
 | Reject            | `q` \| `Ctrl+C` \| `Ctrl+D` |
 
-For other options, run `attercop --help`:
+For the full list of options, see `attercop --help`:
 
 ```bash
 $ attercop --help
-usage: attercop [-h] [--num-prompts NUM_PROMPTS] [--temperature TEMPERATURE] [--max-tokens MAX_TOKENS] [--model MODEL] prompt
+usage: attercop [-h] [-v] [-n NUM_PROMPTS] [-t TEMPERATURE] [-m MAX_TOKENS] [-M MODEL] [-K API_KEY] [-s SHELL] prompt
 
-Generate a command or chain of commands to perform a task. Once generated, you can cycle through commandss with tab, accept a command with enter or y, copy to the clipboard with c, or quit with q.
+Generate a command or chain of shell commands from a natural language prompt. Once generated, you can cycle through commands with tab, accept a command with enter or y, copy to the clipboard with c, or
+quit with q.
 
 positional arguments:
   prompt                The English-language prompt to use for the GPT completion.
 
 options:
   -h, --help            show this help message and exit
-  --num-prompts NUM_PROMPTS
+  -v, --verbose         Prefer verbose flags for the generated command, ie. `--help` instead of `-h`. Defaults to False, though it won't explicitly ask for short flags.
+  -n NUM_PROMPTS, --num-prompts NUM_PROMPTS
                         The maximum number of alternative prompts to generate. Defaults to 3.
-  --temperature TEMPERATURE
-                        Higher values will result in more diverse completions, but lower values will result in more sensible completions. Defaults to 0.
-  --max-tokens MAX_TOKENS
+  -t TEMPERATURE, --temperature TEMPERATURE
+                        Higher values will result in more diverse completions, but lower values will generally result in more sensible ones. Defaults to 0.
+  -m MAX_TOKENS, --max-tokens MAX_TOKENS
                         The maximum number of tokens to generate per prompt. Defaults to 100.
-  --model MODEL         The GPT model to use. Defaults to text-davinci-003.
+  -M MODEL, --model MODEL
+                        The GPT model to use. Defaults to text-davinci-003, the latest and most powerful model generally available.
+  -K API_KEY, --api-key API_KEY
+                        Manually specify an OpenAI API key to use. If none provided, will default to the OPENAI_API_KEY environment variable.
+  -s SHELL, --shell SHELL
+                        The shell to use for the generated command, ie. bash, zsh, fish... If none provided, will look for a SHELL environment variable if available, or otherwise default to bash.
 ```
 
 ## What about other LLM providers?

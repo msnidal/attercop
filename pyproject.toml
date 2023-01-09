@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "attercop"
-version = "0.1.2"
+version = "0.2.0"
 authors = [
     {name = "Mark Snidal", email = "mark.snidal@gmail.com"},
 ]
@@ -22,4 +22,4 @@ lint = [
 ]
 
 [project.scripts]
-attercop = "attercop.attercop:create_prompt"
+attercop = "attercop.attercop:evaluate_prompt"
