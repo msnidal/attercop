@@ -23,3 +23,9 @@ lint = [
 
 [project.scripts]
 attercop = "attercop.attercop:evaluate_prompt"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+addopts = [
+    "--import-mode=importlib",
+]

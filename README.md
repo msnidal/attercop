@@ -46,7 +46,7 @@ It will hit the OpenAI API and come back with one of several prompts, depending 
 
 For the full list of options, see `attercop --help`:
 
-```bash
+```
 $ attercop --help
 usage: attercop [-h] [-v] [-n NUM_PROMPTS] [-t TEMPERATURE] [-m MAX_TOKENS] [-M MODEL] [-K API_KEY] [-s SHELL] prompt
 
