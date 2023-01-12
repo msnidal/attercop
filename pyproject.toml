@@ -4,22 +4,32 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "attercop"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
-    {name = "Mark Snidal", email = "mark.snidal@gmail.com"},
+    { name = "Mark Snidal", email = "mark.snidal@gmail.com" },
 ]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { text = "GPL-3.0-or-later" }
 requires-python = ">=3.10"
 dependencies = [
     "openai~=0.26.0",
-    "pyperclip~=1.8.2"
+    "pyperclip~=1.8.2",
 ]
 
 [project.optional-dependencies]
 lint = [
-    "black~=22.12.0"
+    "black~=22.12.0",
+]
+test = [
+    "pytest~=7.2.0",
+    "pytest-mock~=3.10.0",
 ]
 
 [project.scripts]
 attercop = "attercop.attercop:evaluate_prompt"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+addopts = [
+    "--import-mode=importlib",
+]
