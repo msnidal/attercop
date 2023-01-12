@@ -9,6 +9,7 @@ PROMPT = "My name jeff"
 COMPLETION = "echo 'My name jeff'"
 ALT_COMPLETION = f"{COMPLETION} | grep 'My name jeff'"
 DANGER_COMPLETION = "grep -rl 'turtles' | xargs rm"
+ENV_VAR = "The environment."
 
 
 @pytest.fixture()
@@ -19,8 +20,12 @@ def mock_interfaces(mocker):
     )
     pyperclip_copy = mocker.patch("attercop.attercop.pyperclip.copy")
     subprocess_run = mocker.patch("attercop.attercop.subprocess.run")
+    get_env = mocker.patch("attercop.attercop.os.getenv")
 
-    return openai_completion_create, pyperclip_copy, subprocess_run
+    # Will apply to both shell and API key - can expand on this later
+    get_env.return_value = ENV_VAR
+
+    return openai_completion_create, pyperclip_copy, subprocess_run, get_env
 
 
 @pytest.fixture()
@@ -37,7 +42,7 @@ def mock_interactive_tty(mocker):
 
 def test_direct_execution(mock_interfaces):
     """Tests nominal execution of a single completion in direct mode"""
-    openai_completion_create, pyperclip_copy, subprocess_run = mock_interfaces
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
 
     openai_completion_create.return_value = MagicMock(
         choices=[MagicMock(text=COMPLETION)]
@@ -53,7 +58,7 @@ def test_direct_execution(mock_interfaces):
 
 def test_dangerous_direct_execution(mock_interfaces):
     """Test abort of dangerous execution in direct mode"""
-    openai_completion_create, pyperclip_copy, subprocess_run = mock_interfaces
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
 
     openai_completion_create.return_value = MagicMock(
         choices=[MagicMock(text=DANGER_COMPLETION)]
@@ -71,7 +76,7 @@ def test_dangerous_direct_execution(mock_interfaces):
 
 def test_direct_copy(mock_interfaces):
     """Tests nominal copy of a single completion in direct mode"""
-    openai_completion_create, pyperclip_copy, subprocess_run = mock_interfaces
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
 
     openai_completion_create.return_value = MagicMock(
         choices=[MagicMock(text=COMPLETION)]
@@ -91,7 +96,7 @@ def test_interactive_execution(mock_interfaces, mock_interactive_tty):
     This test mocks the TTY interfaces and simulates a user cycling around
     before accepting an alternative completion for execution.
     """
-    openai_completion_create, pyperclip_copy, subprocess_run = mock_interfaces
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
     (
         stdin_descriptor,
         stdin_attributes,
@@ -123,7 +128,7 @@ def test_interactive_execution(mock_interfaces, mock_interactive_tty):
 
 def test_interactive_reject(mock_interfaces, mock_interactive_tty):
     """Tests nominal rejection of a completion in interactive mode"""
-    openai_completion_create, pyperclip_copy, subprocess_run = mock_interfaces
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
     (
         stdin_descriptor,
         stdin_attributes,
