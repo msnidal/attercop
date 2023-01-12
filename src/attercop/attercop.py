@@ -50,7 +50,7 @@ def parse_args(args_override: list = None) -> argparse.Namespace:
         "-X",
         f"--{EXECUTE}",
         action="store_true",
-        help="Execute the generated command immediately. Will not prompt for user input! Will still require confirmation however if the generated command is flagged as dangerous or privileged. Mutually exclusive with -c | --copy.",
+        help="Execute the generated command immediately *without confirmation!* Attercop will do its best to identify dangerous or privileged commands and exit, but should nonetheless be used with great caution. Mutually exclusive with -c | --copy.",
     )
     parser.add_argument(
         "-c",

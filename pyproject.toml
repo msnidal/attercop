@@ -9,7 +9,7 @@ authors = [
     {name = "Mark Snidal", email = "mark.snidal@gmail.com"},
 ]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "GPL-3.0-or-later"
 requires-python = ">=3.10"
 dependencies = [
     "openai~=0.26.0",
