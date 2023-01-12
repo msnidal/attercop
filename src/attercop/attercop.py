@@ -171,7 +171,7 @@ def get_command_flags(command: str) -> set:
 
     for concern in CAUTION_FLAGS:
         for flag in CAUTION_FLAGS[concern]:
-            if f"{flag} " in command:
+            if f"{flag} " in command or command.endswith(flag):
                 flags.add(concern)
 
     return flags
@@ -222,19 +222,27 @@ def evaluate_prompt() -> None:
             raise ValueError(
                 "No outputs generated. Please try again with a different prompt or model."
             )
+
+        # Queue up the first command for execution or copying
+        selected_query = 0
+        output, flags = outputs[selected_query]
+
+        # May skip interactive loop in some conditions. Otherwise, enter interactive loop
+        if args.execute:
+            if flags:
+                raise ValueError(
+                    f"Command <{output}> triggered cautionary flags <{', '.join(flags)}>\nPlease run in interactive mode to review the command for manual execution."
+                )
+            action = EXECUTE
+        elif args.copy:
+            if flags:
+                print(f"Please review command, triggered cautionary flags <{', '.join(flags)}>")
+            action = COPY
+        else:
+            action = None
+
     except (ValueError, openai.error.OpenAIError) as error:
         sys.exit(f"Error: {error}")
-
-    selected_query = 0
-    output, flags = outputs[selected_query]
-
-    # May skip interactive loop in some conditions
-    if args.execute and not flags:
-        action = EXECUTE
-    elif args.copy:
-        action = COPY
-    else:
-        action = None
 
     # Interactive command selection loop
     if not action:
