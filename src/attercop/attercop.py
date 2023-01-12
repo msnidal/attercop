@@ -28,7 +28,7 @@ CAUTION_FLAGS = {
 
 
 def parse_args(args_override: list = None) -> argparse.Namespace:
-    """ Parse command line arguments.
+    """Parse command line arguments.
 
     Will exit if the arguments are invalid.
     """
@@ -113,9 +113,9 @@ def parse_args(args_override: list = None) -> argparse.Namespace:
         parser.error("Number of prompts must be between 1 and 10")
     elif args.max_tokens < 1 or args.max_tokens > 1024:
         parser.error("Maximum tokens must be between 1 and 1024")
-        
+
     if args.execute or args.copy:
-        args.num_prompts = 1 # Only need one prompt if we're not prompting the user
+        args.num_prompts = 1  # Only need one prompt if we're not prompting the user
 
     return args
 
@@ -160,7 +160,7 @@ def generate_prompt(args: argparse.Namespace) -> str:
     return prompt
 
 
-def flag_command(command: str) -> set:
+def get_command_flags(command: str) -> set:
     """Identify dangerous or privileged commands
 
     Put together this puts reasonable oversight on common commands that could
@@ -181,7 +181,7 @@ def evaluate_prompt() -> None:
     """Evaluate the prompt and generate a command or chain of commands
 
     This is the main function that handles the command line arguments, the GPT completion, and the
-    interactive command selection loop
+    interactive command selection loop.
     """
     try:
         args = parse_args()
@@ -211,10 +211,12 @@ def evaluate_prompt() -> None:
         )
 
         # Deduplicate choices while still preserving ordering (dict is insertion ordered)
-        outputs = list({
-            choice.text.strip(): flag_command(choice.text)
-            for choice in response.choices
-        }.items())
+        outputs = list(
+            {
+                choice.text.strip(): get_command_flags(choice.text)
+                for choice in response.choices
+            }.items()
+        )
 
         if not "".join([output[0] for output in outputs]):
             raise ValueError(
@@ -223,23 +225,29 @@ def evaluate_prompt() -> None:
     except (ValueError, openai.error.OpenAIError) as error:
         sys.exit(f"Error: {error}")
 
-    if args.execute or args.copy:
-        action = EXECUTE if args.execute else COPY
+    selected_query = 0
+    output, flags = outputs[selected_query]
+
+    # May skip interactive loop in some conditions
+    if args.execute and not flags:
+        action = EXECUTE
+    elif args.copy:
+        action = COPY
     else:
         action = None
 
     # Interactive command selection loop
-    stdin_descriptor = sys.stdin.fileno()
-    stdin_attributes = termios.tcgetattr(stdin_descriptor)
-    tty.setraw(stdin_descriptor)
-
-    selected_query = 0
+    if not action:
+        stdin_descriptor = sys.stdin.fileno()
+        stdin_attributes = termios.tcgetattr(stdin_descriptor)
+        tty.setraw(stdin_descriptor)
 
     try:
         while not action:
-            output, flags = outputs[selected_query]
-
-            print(f"({selected_query + 1}/{len(outputs)}): {output} | {flags}", end="\r")
+            print(
+                f"({selected_query + 1}/{len(outputs)}{' ' + str(flags) if flags else ''}): {output}",
+                end="\r",
+            )
             ch = sys.stdin.read(1)
 
             match ch:
@@ -249,13 +257,15 @@ def evaluate_prompt() -> None:
                     action = COPY
                 case "\t":
                     selected_query = (selected_query + 1) % len(outputs)
+                    output, flags = outputs[selected_query]
                 case "q" | "\x03" | "\x04":  # SIGKILL & SIGTERM - not ideal tty handling but hey it works
                     break
 
             if not action:
-                sys.stdout.write("\r" + " " * 100 + "\r")
+                print("\033[K", end="")  # Clear line
     finally:
-        termios.tcsetattr(stdin_descriptor, termios.TCSADRAIN, stdin_attributes)
+        if not (args.execute and not flags) and not args.copy:
+            termios.tcsetattr(stdin_descriptor, termios.TCSADRAIN, stdin_attributes)
 
     if action == EXECUTE:
         print(f"Executing: {output}")
