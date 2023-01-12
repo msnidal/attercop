@@ -236,7 +236,9 @@ def evaluate_prompt() -> None:
             action = EXECUTE
         elif args.copy:
             if flags:
-                print(f"Please review command, triggered cautionary flags <{', '.join(flags)}>")
+                print(
+                    f"Please review command, triggered cautionary flags <{', '.join(flags)}>"
+                )
             action = COPY
         else:
             action = None
