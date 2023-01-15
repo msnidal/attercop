@@ -40,24 +40,26 @@ def parse_args(args_override: list = None) -> argparse.Namespace:
         type=str,
         help="The English-language prompt to use for the GPT completion.",
     )
-    execution_mode = parser.add_mutually_exclusive_group() # Interactive by default, otherwise only one of these can be set
+    execution_mode = (
+        parser.add_mutually_exclusive_group()
+    )  # Interactive by default, otherwise only one of these can be set
     execution_mode.add_argument(
         "-X",
         f"--{EXECUTE}",
         action="store_true",
-        help="Execute mode: runs the generated command immediately without confirmation! Tries to identify dangerous or privileged commands and exit, but should nonetheless be used with great caution."
+        help="Execute mode: runs the generated command immediately without confirmation! Tries to identify dangerous or privileged commands and exit, but should nonetheless be used with great caution.",
     )
     execution_mode.add_argument(
         "-c",
         f"--{COPY}",
         action="store_true",
-        help="Copy mode: copies the generated command to the clipboard immediately without prompting for user input."
+        help="Copy mode: copies the generated command to the clipboard immediately without prompting for user input.",
     )
     execution_mode.add_argument(
         "-p",
         f"--{PRINT}",
         action="store_true",
-        help="Print mode: outputs the generated command directly to stdout without prompting for user input."
+        help="Print mode: outputs the generated command directly to stdout without prompting for user input.",
     )
     parser.add_argument(
         "-v",
@@ -242,7 +244,8 @@ def evaluate_prompt() -> None:
         elif args.copy or args.print:
             if flags:
                 print(
-                    f"Command `{output}` triggered cautionary flags <{', '.join(flags)}>\nPlease review before running!", file=sys.stderr
+                    f"Command `{output}` triggered cautionary flags <{', '.join(flags)}>\nPlease review before running!",
+                    file=sys.stderr,
                 )
             action = COPY if args.copy else PRINT
         else:
