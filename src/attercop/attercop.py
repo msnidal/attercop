@@ -9,7 +9,7 @@ import pathlib
 import openai
 import pyperclip
 
-EXECUTE, COPY = "execute", "copy"
+EXECUTE, COPY, PRINT = "execute", "copy", "print"
 CAUTION_FLAGS = {
     "dangerous": (
         "rm",
@@ -33,30 +33,39 @@ def parse_args(args_override: list = None) -> argparse.Namespace:
     Will exit if the arguments are invalid.
     """
     parser = argparse.ArgumentParser(
-        description="Generate a command or chain of shell commands from a natural language prompt. Once generated, you can cycle through commands with tab, accept a command with enter or y, copy to the clipboard with c, or quit with q."
+        description="Generate a command or chain of shell commands from a natural language prompt. In the default interactive mode, you can cycle through commands with tab, execute with enter or y, copy to the clipboard with c, or quit with q."
     )
     parser.add_argument(
         "prompt",
         type=str,
         help="The English-language prompt to use for the GPT completion.",
     )
+    execution_mode = (
+        parser.add_mutually_exclusive_group()
+    )  # Interactive by default, otherwise only one of these can be set
+    execution_mode.add_argument(
+        "-X",
+        f"--{EXECUTE}",
+        action="store_true",
+        help="Execute mode: runs the generated command immediately without confirmation! Tries to identify dangerous or privileged commands and exit, but should nonetheless be used with great caution.",
+    )
+    execution_mode.add_argument(
+        "-c",
+        f"--{COPY}",
+        action="store_true",
+        help="Copy mode: copies the generated command to the clipboard immediately without prompting for user input.",
+    )
+    execution_mode.add_argument(
+        "-p",
+        f"--{PRINT}",
+        action="store_true",
+        help="Print mode: outputs the generated command directly to stdout without prompting for user input.",
+    )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="Explicitly prefer verbose flags for the generated command, ie. `--help` instead of `-h`.",
-    )
-    parser.add_argument(
-        "-X",
-        f"--{EXECUTE}",
-        action="store_true",
-        help="Execute the generated command immediately *without confirmation!* Attercop will do its best to identify dangerous or privileged commands and exit, but should nonetheless be used with great caution. Mutually exclusive with -c | --copy.",
-    )
-    parser.add_argument(
-        "-c",
-        f"--{COPY}",
-        action="store_true",
-        help="Copy the generated command to the clipboard immediately, rather than prompting for user input. Mutually exclusive with -X | --execute.",
     )
     parser.add_argument(
         "-n",
@@ -105,17 +114,15 @@ def parse_args(args_override: list = None) -> argparse.Namespace:
     )
     args = parser.parse_args(args_override)
 
-    if args.execute and args.copy:
-        parser.error("-X | --execute and -c | --copy are mutually exclusive")
-    elif args.temperature < 0 or args.temperature > 2:
+    if args.temperature < 0 or args.temperature > 2:
         parser.error("Temperature must be between 0.0 and 2.0")
     elif args.num_prompts < 1 or args.num_prompts > 10:
         parser.error("Number of prompts must be between 1 and 10")
     elif args.max_tokens < 1 or args.max_tokens > 1024:
         parser.error("Maximum tokens must be between 1 and 1024")
 
-    if args.execute or args.copy:
-        args.num_prompts = 1  # Only need one prompt if we're not prompting the user
+    if args.execute or args.copy or args.print:
+        args.num_prompts = 1  # Save on tokens in any non-interactive mode
 
     return args
 
@@ -148,7 +155,7 @@ def generate_prompt(args: argparse.Namespace) -> str:
         else "sort -k5 -n -r\n"
     )
     prompt = (
-        f"Convert a prompt into a working programmatic shell command or chain of commands, making use of standard GNU tools and common Unix idioms. The shell used is {shell}."
+        f"Convert a prompt into a working programmatic {shell} shell command or chain of commands, making use of standard GNU tools and common Unix idioms."
         + verbosity_clause
         + "Prompt: List all the files in this directory, filtering out the ones that are not directories, and then sort them by size, largest first.\n"
         + "Command: ls -l | grep ^d | "
@@ -231,15 +238,16 @@ def evaluate_prompt() -> None:
         if args.execute:
             if flags:
                 raise ValueError(
-                    f"Command <{output}> triggered cautionary flags <{', '.join(flags)}>\nPlease run in interactive mode to review the command for manual execution."
+                    f"Command `{output}` triggered cautionary flags <{', '.join(flags)}>\nPlease run in interactive mode to review the command for manual execution."
                 )
             action = EXECUTE
-        elif args.copy:
+        elif args.copy or args.print:
             if flags:
                 print(
-                    f"Please review command, triggered cautionary flags <{', '.join(flags)}>"
+                    f"Command `{output}` triggered cautionary flags <{', '.join(flags)}>\nPlease review before running!",
+                    file=sys.stderr,
                 )
-            action = COPY
+            action = COPY if args.copy else PRINT
         else:
             action = None
 
@@ -274,7 +282,7 @@ def evaluate_prompt() -> None:
             if not action:
                 print("\033[K", end="")  # Clear line
     finally:
-        if not (args.execute and not flags) and not args.copy:
+        if not args.execute and not args.copy and not args.print:
             termios.tcsetattr(stdin_descriptor, termios.TCSADRAIN, stdin_attributes)
 
     if action == EXECUTE:
@@ -283,6 +291,8 @@ def evaluate_prompt() -> None:
     elif action == COPY:
         print(f"Copying to clipboard: {output}")
         pyperclip.copy(output)
+    elif action == PRINT:
+        print(output)
 
 
 if __name__ == "__main__":
