@@ -123,7 +123,7 @@ def test_dangerous_print(mock_interfaces, capsys):
 
     output = capsys.readouterr()
     assert output.out == DANGER_COMPLETION
-    assert "cautionary flags <dangerous>" in output.err
+    assert "<dangerous>" in output.err
 
     openai_completion_create.assert_called_once()
     subprocess_run.assert_not_called()

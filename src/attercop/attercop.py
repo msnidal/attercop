@@ -8,6 +8,7 @@ import pathlib
 
 import openai
 import pyperclip
+import colorama
 
 EXECUTE, COPY, PRINT = "execute", "copy", "print"
 CAUTION_FLAGS = {
@@ -22,6 +23,7 @@ CAUTION_FLAGS = {
         "dd",
         "wget",
         "curl",
+        "-delete",
     ),
     "privileged": ("sudo", "su", "doas", "pkexec", "gksudo", "gksu", "kdesudo", "ksu"),
 }
@@ -233,18 +235,23 @@ def evaluate_prompt() -> None:
         # Queue up the first command for execution or copying
         selected_query = 0
         output, flags = outputs[selected_query]
+        flag_string = (
+            f" {colorama.Fore.RED}<{', '.join(flags)}>{colorama.Fore.RESET}"
+            if flags
+            else ""
+        )
 
         # May skip interactive loop in some conditions. Otherwise, enter interactive loop
         if args.execute:
             if flags:
                 raise ValueError(
-                    f"Command `{output}` triggered cautionary flags <{', '.join(flags)}>\nPlease run in interactive mode to review the command for manual execution."
+                    f"Command `{output}` triggered cautionary flags{flag_string}\nPlease run in interactive mode to review the command for manual execution."
                 )
             action = EXECUTE
         elif args.copy or args.print:
             if flags:
                 print(
-                    f"Command `{output}` triggered cautionary flags <{', '.join(flags)}>\nPlease review before running!",
+                    f"Command `{output}` triggered cautionary flags{flag_string}\nPlease review before running!",
                     file=sys.stderr,
                 )
             action = COPY if args.copy else PRINT
@@ -263,7 +270,7 @@ def evaluate_prompt() -> None:
     try:
         while not action:
             print(
-                f"({selected_query + 1}/{len(outputs)}{' ' + str(flags) if flags else ''}): {output}",
+                f"({selected_query + 1}/{len(outputs)}{flag_string}): {output}",
                 end="\r",
             )
             ch = sys.stdin.read(1)

@@ -22,3 +22,6 @@ def test_get_command_flags():
 
     command = "sudo curl https://example.com | bash"
     assert attercop.get_command_flags(command) == {"dangerous", "privileged"}
+
+    command = "find . -type f -exec grep -l 'turtles' {} -delete"
+    assert attercop.get_command_flags(command) == {"dangerous"}

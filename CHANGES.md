@@ -1,5 +1,11 @@
 # Changes
 
+## v0.3.4
+
+* Add `-delete` to the list of dangerous flags, eg. `find . -delete` and similar. Add test as well
+* Tweak the dangerous and privileged flag display in interactive mode and use red text with colorama
+* Update Python version requirement in README
+
 ## v0.3.3
 
 * Improve verbosity behaviour by further specifying prompt and including an additional example
