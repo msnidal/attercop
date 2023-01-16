@@ -1,5 +1,9 @@
 # Changes
 
+## v0.3.3
+
+* Improve verbosity behaviour by further specifying prompt and including an additional example
+
 ## v0.3.2
 
 * Replace match statement with if/else to support older Python versions back to 3.7.1 (bounded by OpenAI python library)
