@@ -20,7 +20,7 @@ In its default interactive mode, attercop will let you cycle through multiple op
 
 ## Installation
 
-Attercop is available on PyPI, so as long as you're running Python >=3.10, you can install it with pip:
+Attercop is available on PyPI, so as long as you're running Python >=3.7.1, you can install it with pip:
 
 ```bash
 pip install attercop
