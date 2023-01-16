@@ -145,12 +145,12 @@ def generate_prompt(args: argparse.Namespace) -> str:
             shell = "bash"
 
     verbosity_clause = (
-        " Use verbose flags wherever possible, ie. --help instead of -h\n"
+        " Use verbose flags absolutely wherever possible, ie. --help instead of -h, head --lines=3 instead of n=3, etc.\n"
         if args.verbose
         else "\n"
     )
-    sort_clause = (
-        "sort --key=5 --numeric-sort --reverse\n"
+    sort_clause = (  # Include an additional example to get through GPT's thick skull
+        "sort --key=5 --numeric-sort --reverse\nPrompt: Create an annotated git tag for version v1.0\nCommand: git tag --annotate v1.0 --message 'Version 1.0'\n"
         if args.verbose
         else "sort -k5 -n -r\n"
     )
