@@ -37,7 +37,7 @@ def mock_interactive_tty(mocker):
     tty_tcsetattr = mocker.patch("attercop.attercop.termios.tcsetattr")
     sys_read = mocker.patch("attercop.attercop.sys.stdin.read")
 
-    return (stdin_descriptor, stdin_attributes, tty_setraw, tty_tcsetattr, sys_read)
+    return stdin_descriptor, stdin_attributes, tty_setraw, tty_tcsetattr, sys_read
 
 
 def test_direct_execution(mock_interfaces):
@@ -88,6 +88,46 @@ def test_direct_copy(mock_interfaces):
     openai_completion_create.assert_called_once()
     subprocess_run.assert_not_called()
     pyperclip_copy.assert_called_once_with(COMPLETION)
+
+
+def test_direct_print(mock_interfaces, capsys):
+    """Tests nominal print of a single completion in direct mode"""
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
+
+    openai_completion_create.return_value = MagicMock(
+        choices=[MagicMock(text=COMPLETION)]
+    )
+
+    sys.argv = [sys.argv[0], PROMPT, "--print"]
+    attercop.evaluate_prompt()
+
+    output = capsys.readouterr()
+    assert output.out == COMPLETION
+    assert not output.err
+
+    openai_completion_create.assert_called_once()
+    subprocess_run.assert_not_called()
+    pyperclip_copy.assert_not_called()
+
+
+def test_dangerous_print(mock_interfaces, capsys):
+    """Ensure that warning flags are raised to stderr when printing dangerous completions"""
+    openai_completion_create, pyperclip_copy, subprocess_run, _ = mock_interfaces
+
+    openai_completion_create.return_value = MagicMock(
+        choices=[MagicMock(text=DANGER_COMPLETION)]
+    )
+
+    sys.argv = [sys.argv[0], PROMPT, "--print"]
+    attercop.evaluate_prompt()
+
+    output = capsys.readouterr()
+    assert output.out == DANGER_COMPLETION
+    assert "cautionary flags <dangerous>" in output.err
+
+    openai_completion_create.assert_called_once()
+    subprocess_run.assert_not_called()
+    pyperclip_copy.assert_not_called()
 
 
 def test_interactive_execution(mock_interfaces, mock_interactive_tty):

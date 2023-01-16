@@ -268,16 +268,17 @@ def evaluate_prompt() -> None:
             )
             ch = sys.stdin.read(1)
 
-            match ch:
-                case "y" | "\r":
-                    action = EXECUTE
-                case "c":
-                    action = COPY
-                case "\t":
-                    selected_query = (selected_query + 1) % len(outputs)
-                    output, flags = outputs[selected_query]
-                case "q" | "\x03" | "\x04":  # SIGKILL & SIGTERM - not ideal tty handling but hey it works
-                    break
+            if ch == "y" or ch == "\r":
+                action = EXECUTE
+            elif ch == "c":
+                action = COPY
+            elif ch == "\t":
+                selected_query = (selected_query + 1) % len(outputs)
+                output, flags = outputs[selected_query]
+            elif (
+                ch == "q" or ch == "\x03" or ch == "\x04"
+            ):  # SIGKILL & SIGTERM - not ideal tty handling but hey it works
+                break
 
             if not action:
                 print("\033[K", end="")  # Clear line
@@ -292,7 +293,7 @@ def evaluate_prompt() -> None:
         print(f"Copying to clipboard: {output}")
         pyperclip.copy(output)
     elif action == PRINT:
-        print(output)
+        print(output, end="")
 
 
 if __name__ == "__main__":
